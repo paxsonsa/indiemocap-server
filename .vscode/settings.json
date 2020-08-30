@@ -1,3 +1,4 @@
 {
     "python.pythonPath": "/Users/apaxson/.local/share/virtualenvs/indiemocap-server-TKVt-niq/bin/python",
+    "python.autoComplete.addBrackets": true,
 }

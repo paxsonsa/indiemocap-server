@@ -12,7 +12,7 @@ import socket
 
 class UDPConnection:
 
-    max_size = 256 * 1024  # Buffer size passed to recv()
+    max_size = 4 * 1024  # Buffer size passed to recv()
 
     class Metadata:
         def __init__(self):
@@ -47,13 +47,24 @@ class UDPConnection:
                     raise error
             else:
                 self.metadata.update_metadata(host_port=host_port)
-                message = self.transport.handled_recieved(data, self.metadata)
+                message, error_msg = self.transport.handled_recieved(data, self.metadata)
+
+                # Message failed to be decoded, send error from transport layer.
+                if error_msg:
+                    self.send_message(error_msg)
+                    continue
+
+                # Pass message to delegate to be processed and send the response.
                 if self.delegate and message:
-                    self.delegate.did_recieve_message(message)
+                    response = self.delegate.did_recieve_message(message)
+                    if response:
+                        self.send_message(response)
 
     def close(self):
         self.sock.close()
 
     def send_message(self, message):
         encoded_message = self.transport.handle_send(message, self.metadata)
-        self.sock.sendto(encoded_message, self.metadata.get("host_port"))
+        print("Encoded", encoded_message)
+        print(self.metadata.get("host_port"))
+        print("Sent", self.sock.sendto(encoded_message, self.metadata.get("host_port")))

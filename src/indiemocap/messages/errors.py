@@ -6,29 +6,19 @@ Error Codes
 
 Author: Andrew Paxson
 """
-from indiemocap.message_types import (
-    Error
-)
-from indiemocap.messages import (
-    MessageEncoder,
-    safe_pack_header,
-    safe_pack_message,
-
-)
-
-ERROR_BAD_MTYPE = 10
-ERROR_BAD_HANDSHAKE = 11
+from indiemocap import messaging
+from indiemocap import message_types
 
 
-class ErrorMessage(MessageEncoder):
+class ErrorMessage(messaging.MessageEncoder):
 
-    mtype = Error
+    mtype = message_types.Error
 
     def __init__(self, error_code, message):
         self.error_code = error_code
         self.message = message
 
     def encode_body(self):
-        error_code = safe_pack_message('i', self.error_code)
+        error_code = messaging.safe_pack_message('i', self.error_code)
         encoded_str = self.message.encode('utf-16')
         return error_code + encoded_str

@@ -6,12 +6,13 @@ Protocol Transport
 
 Author: Andrew Paxson
 """
-from indiemocap.messages import (
-    safe_unpack_header
-)
+import indiemocap.log
 
-from indiemocap import errors
+from indiemocap import messaging
+from indiemocap import errorno
+from indiemocap.messages import errors
 
+LOG = indiemocap.log.get_logger()
 
 class ProtocolTransport:
 
@@ -20,18 +21,22 @@ class ProtocolTransport:
         self.registered_handlers = {}
 
     def handled_recieved(self, data, metadata):
+        # Returns message, error
         # Incomplete message
         if len(data) < 4:
-            return
+            return None, None
 
-        header = safe_unpack_header(data)
+        header = messaging.safe_unpack_header(data)
         message_processor = self.registered_handlers.get(header['mtype'])
 
+        LOG.debug("Testing")
         if message_processor:
-            return message_processor.process(self, metadata, data[4:])
+            LOG.info("Testing Info")
+            return message_processor.process(self, metadata, data[messaging.MESAGE_HEADER_SIZE:]), None
         else:
-            error_msg = errors.ErrorMessage(errors.ERROR_BAD_MTYPE, "Cannot process message type.")
-            self.connection.send_message(error_msg)
+            LOG.error("Error Occurred")
+            error_msg = errors.ErrorMessage(errorno.ERROR_BAD_MTYPE, "Cannot process message type.")
+            return None, error_msg
 
     def handle_send(self, message, metadata):
         return message.encode()

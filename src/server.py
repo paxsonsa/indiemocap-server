@@ -6,24 +6,27 @@ Main Server Runtime for IndieMocap
 
 Author: Andrew Paxson
 """
-import logging
 import netifaces
 import socket
 import threading
 from zeroconf import ServiceInfo, Zeroconf
 
 import indiemocap as imc
+import indiemocap.log
+import indiemocap.message_types
+
 
 class MocapServer(imc.connection_delegates.ConnectionDelegate):
 
-    def __init__(self):
+    def __init__(self, session_controller):
+
+        self.session_controller = session_controller
         self.configure_transport()
         self.configure_server()
 
 
     def configure_transport(self):
         self.transport = imc.transport.ProtocolTransport()
-        handshake_handler = imc.handshakes.HandshakeHandler()
         self.transport.register_handlers(imc.default_handlers)
 
     def configure_server(self):
@@ -41,6 +44,7 @@ class MocapServer(imc.connection_delegates.ConnectionDelegate):
         )
         self._zeroconf = zeroconf = Zeroconf()
 
+        print("Service available on port {0}".format(port))
         print("Registration of a service, press Ctrl-C to exit...")
         self._zeroconf.register_service(self._service_info)
 
@@ -61,16 +65,21 @@ class MocapServer(imc.connection_delegates.ConnectionDelegate):
         self._zeroconf.close()
 
     def did_recieve_message(self, message):
-        if message.mtype == imc.message_types.Handshake:
-            msg = imc.handshakes.HandshakeMessage("1.0.0", None)
-            self.connection.send_message(msg)
-        print(message)
+
+        response = None
+
+        if message.mtype == indiemocap.message_types.SessionInit:
+            response = self.session_controller.initialize_session(
+                message.serialize()
+            )
+
+        return response
 
 
 def make_udp_socket():
     """Returns a new udp socket bound to 0.0.0.0 and with kernel choosen port."""
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind(('', 0,))
+    sock.bind(('', 8877,))
     sock.setblocking(False)
     return sock
 
@@ -93,7 +102,9 @@ def get_socket_addr():
 
 
 def run():
-    server = MocapServer()
+    indiemocap.log.get_logger()
+    session_controller = imc.session_controller.SessionController()
+    server = MocapServer(session_controller)
     try:
         close_event = server.start_threaded_connection()
         while True:

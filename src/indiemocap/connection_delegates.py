@@ -6,9 +6,6 @@ ConnectionDelegate
 
 Author: Andrew Paxson
 """
-from indiemocap import message_types
-from indiemocap.handshakes import HandshakeMessage
-
 class ConnectionDelegate:
 
     def did_recieve_message(self, message):

@@ -8,14 +8,13 @@ Author: Andrew Paxson
 from indiemocap import (
     connection,
     connection_delegates,
+    messages,
     transport,
-    errors,
-    handshakes,
-    message_types
+    session_controller,
 )
 
 default_handlers = [
-    handshakes.HandshakeHandler(),
+    messages.SessionInitMessageHandler(),
 ]
 
 supported_versions = [
