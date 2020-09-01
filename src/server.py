@@ -72,6 +72,8 @@ class MocapServer(imc.connection_delegates.ConnectionDelegate):
             response = self.session_controller.initialize_session(
                 message.serialize()
             )
+        elif message.mtype == indiemocap.message_types.SessionHeartbeat:
+            print("Boom Boom")
 
         return response
 

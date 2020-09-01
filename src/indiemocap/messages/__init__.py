@@ -9,3 +9,8 @@ from .session_init import (
     SessionInitMessage,
     SessionInitMessageHandler,
 )
+
+from .heartbeat import (
+    SessionHeartbeatMessage,
+    SessionHeartbeatHandler,
+)

@@ -28,6 +28,7 @@ class ProtocolTransport:
 
         header = messaging.safe_unpack_header(data)
         message_processor = self.registered_handlers.get(header['mtype'])
+        print(message_processor)
 
         LOG.debug("Testing")
         if message_processor:
