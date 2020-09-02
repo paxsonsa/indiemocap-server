@@ -73,7 +73,7 @@ class MocapServer(imc.connection_delegates.ConnectionDelegate):
                 message.serialize()
             )
         elif message.mtype == indiemocap.message_types.SessionHeartbeat:
-            print("Boom Boom")
+            response = self.session_controller.make_heartbeat()
 
         return response
 

@@ -19,3 +19,6 @@ class SessionController:
             "MyServer",
             is_video_supported=False
         )
+
+    def make_heartbeat(self):
+        return responses.SessionHeartbeatResponse()
