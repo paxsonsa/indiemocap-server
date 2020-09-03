@@ -14,3 +14,8 @@ from .heartbeat import (
     SessionHeartbeatMessage,
     SessionHeartbeatHandler,
 )
+
+from .motion_data import (
+    MotionDataMessage,
+    MotionDataHandler,
+)

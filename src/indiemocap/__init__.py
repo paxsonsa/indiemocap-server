@@ -16,6 +16,7 @@ from indiemocap import (
 default_handlers = [
     messages.SessionInitMessageHandler(),
     messages.SessionHeartbeatHandler(),
+    messages.MotionDataHandler(),
 ]
 
 supported_versions = [

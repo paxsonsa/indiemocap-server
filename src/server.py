@@ -65,15 +65,16 @@ class MocapServer(imc.connection_delegates.ConnectionDelegate):
         self._zeroconf.close()
 
     def did_recieve_message(self, message):
-
         response = None
-
         if message.mtype == indiemocap.message_types.SessionInit:
             response = self.session_controller.initialize_session(
                 message.serialize()
             )
         elif message.mtype == indiemocap.message_types.SessionHeartbeat:
             response = self.session_controller.make_heartbeat()
+
+        elif message.mtype == indiemocap.message_types.MotionData:
+            print(message)
 
         return response
 

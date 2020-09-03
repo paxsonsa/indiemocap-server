@@ -25,6 +25,7 @@ class SessionInitMessage(messaging.Message):
 class SessionInitMessageHandler(messaging.MessageHandler):
 
     mtype = message_types.SessionInit
+    messageKlass = SessionInitMessage
 
     # The byte structure for the 'struct' module
     #  1 bytes bool
@@ -50,27 +51,3 @@ class SessionInitMessageHandler(messaging.MessageHandler):
     metadata_keys = [
         "host_port"
     ]
-
-    def process(self, transport, metadata, data):
-        unpacked_data = messaging.safe_unpack_message(self.byte_structure, data)
-        if unpacked_data is None:
-            # TODO Send Error
-            return
-
-        data = {}
-        for i, key in enumerate(self.name_byte_mapping):
-            if key is None:
-                continue
-
-            value = unpacked_data[i]
-
-            # Process Value Hooks
-            hook = self.decode_hooks.get(key)
-            if hook:
-                value = hook(value)
-            data[key] = value
-
-        for key in self.metadata_keys:
-            data[key] = metadata.get(key)
-
-        return SessionInitMessage(**data)

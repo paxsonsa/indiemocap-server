@@ -16,6 +16,7 @@ class SessionHeartbeatMessage(messaging.Message):
 class SessionHeartbeatHandler(messaging.MessageHandler):
 
     mtype = message_types.SessionHeartbeat
+    messageKlass = SessionHeartbeatMessage
 
     byte_structure = None
     name_byte_mapping = []

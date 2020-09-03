@@ -49,8 +49,37 @@ class MessageEncoder:
 
 class MessageHandler:
 
+    # TODO Document
+    messageKlass = None
+    byte_structure = None
+    name_byte_mapping = []
+    metadata_keys = []
+    decode_hooks = {}
+
+
     def process(self, transport, metadata, data):
-        raise NotImplementedError
+        unpacked_data = safe_unpack_message(self.byte_structure, data)
+        if unpacked_data is None:
+            # TODO Send Error
+            return
+
+        data = {}
+        for i, key in enumerate(self.name_byte_mapping):
+            if key is None:
+                continue
+
+            value = unpacked_data[i]
+
+            # Process Value Hooks
+            hook = self.decode_hooks.get(key)
+            if hook:
+                value = hook(value)
+            data[key] = value
+
+        for key in self.metadata_keys:
+            data[key] = metadata.get(key)
+
+        return self.messageKlass(**data)
 
 
 def safe_unpack_header(data):

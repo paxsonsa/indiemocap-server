@@ -7,7 +7,10 @@ Message Types
 Author: Andrew Paxson
 """
 Error = 0
+
 SessionHeartbeat = 10
 SessionInit = 11
 SessionStarted = 12
 SessionSessionEnded = 13
+
+MotionData = 20

@@ -30,12 +30,10 @@ class ProtocolTransport:
         message_processor = self.registered_handlers.get(header['mtype'])
         print(message_processor)
 
-        LOG.debug("Testing")
         if message_processor:
-            LOG.info("Testing Info")
             return message_processor.process(self, metadata, data[messaging.MESAGE_HEADER_SIZE:]), None
         else:
-            LOG.error("Error Occurred")
+            LOG.error("Error Occurred: no message process for mtype '{0}'".format(header["mtype"]))
             error_msg = errors.ErrorMessage(errorno.ERROR_BAD_MTYPE, "Cannot process message type.")
             return None, error_msg
 
