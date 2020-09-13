@@ -74,7 +74,7 @@ class MocapServer(imc.connection_delegates.ConnectionDelegate):
             response = self.session_controller.make_heartbeat()
 
         elif message.mtype == indiemocap.message_types.MotionData:
-            print(message)
+            response = self.session_controller.process_motion_data(message)
 
         return response
 
@@ -104,7 +104,7 @@ def get_socket_addr():
             return socket.inet_aton(addr)
 
 
-def run():
+def run_dev_server():
     indiemocap.log.get_logger()
     session_controller = imc.session_controller.SessionController()
     server = MocapServer(session_controller)
@@ -124,5 +124,5 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    run_dev_server()
 

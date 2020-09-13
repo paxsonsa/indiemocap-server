@@ -9,16 +9,39 @@ Author: Andrew Paxson
 from indiemocap import responses
 
 class SessionController:
-    def __init__(self):
+    def __init__(self, delegate=None):
         self.client_info = None
+        self.delegate = delegate
+        self.state = {
+            "mode": 0
+        }
 
     def initialize_session(self, client_info):
-        self.client_info = client_info
+        name = "My Server"
+        self.state["client_info"] = client_info
+
+        if self.delegate:
+            name = self.delegate.getSessionName() or name
+            # TODO Error
+            self.delegate.session_did_initialize(client_info)
 
         return responses.SessionStartedResponse(
-            "MyServer",
+            name,
             is_video_supported=False
         )
+
+    def update_mode(self, mode):
+        self.state["mode"] = mode
+        if self.delegate:
+            # TODO Handle Errors
+            self.delegate.didUpdateMode(mode)
+
+    def process_motion_data(self, motion_data):
+        # TODO check mode
+        if self.delegate:
+            # TODO Handle Error/Response
+            self.delegate.didRecieveMotionData(motion_data)
+        return None
 
     def make_heartbeat(self):
         return responses.SessionHeartbeatResponse()

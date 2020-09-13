@@ -21,7 +21,6 @@ class MotionDataMessage(messaging.Message):
         self.accY = accY
         self.accZ = accZ
 
-
 class MotionDataHandler(messaging.MessageHandler):
 
     mtype = message_types.MotionData
