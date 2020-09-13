@@ -11,7 +11,6 @@ import struct
 import time
 import unittest
 
-from mocks.session_controller import MockSessionController
 from mocks.houdini_pipein import MockPipeInServer
 
 from indiemocap.messages.motion_data import MotionDataMessage
