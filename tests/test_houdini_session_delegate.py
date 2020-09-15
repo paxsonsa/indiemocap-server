@@ -7,11 +7,10 @@ Test Suite for the Houdini Session Delegate
 Author: Andrew Paxson
 """
 import mock
+import pytest
 import struct
 import time
 import unittest
-
-from mocks.houdini_pipein import MockPipeInServer
 
 from indiemocap.messages.motion_data import MotionDataMessage
 import indiemocap.session
@@ -23,6 +22,9 @@ class TestHoudiniDelegateLifeCycle(unittest.TestCase):
 
     def setUp(self):
         self.mock_socket = mock.Mock()
+        self.mock_connection = mock.Mock()
+        self.mock_socket.accept.return_value = (self.mock_connection, None)
+
         self.delegate = houdini.HoudiniSessionControllerDelegate()
         self.delegate.socket = self.mock_socket
 
@@ -34,16 +36,16 @@ class TestHoudiniDelegateLifeCycle(unittest.TestCase):
         client_info = {"name": "MyServer"}
         self.delegate.session_did_initialize(client_info)
 
-        msg = self.mock_socket.sendall.call_args_list[msg_index][P_ARGS][0]
-        self.assertTrue(is_reset(msg))
+        msg = self.mock_connection.sendall.call_args_list[msg_index][P_ARGS][0]
+        assert is_reset(msg), "Expect Reset to be sent to Houdini"
         msg_index += 1
 
-        msg = self.mock_socket.sendall.call_args_list[msg_index][P_ARGS][0]
+        msg = self.mock_connection.sendall.call_args_list[msg_index][P_ARGS][0]
         comannd_type, channel_count = struct.unpack_from('!qq', msg)
 
-        self.assertEqual(comannd_type, houdini.commands.NAMES)
+        assert comannd_type == houdini.commands.NAMES, "Expected command type afer reset to be NAMES commandtype"
         # Motion Data is recorded as 6 distinct channels for rotation and position
-        self.assertEqual(channel_count, 6)
+        assert channel_count == 6, "Expected channel count to be 6"
 
         # Each channel name is sent as a series of 8 byte chunks (char*)
         # Each channel is preceeded by the number of chunks which
@@ -64,31 +66,32 @@ class TestHoudiniDelegateLifeCycle(unittest.TestCase):
             MotionDataMessage(*motion_data)
         )
 
-        msg = self.mock_socket.sendall.call_args_list[msg_index][P_ARGS][0]
-        self.assertTrue(is_reset(msg))
+        msg = self.mock_connection.sendall.call_args_list[msg_index][P_ARGS][0]
+        assert is_reset(msg), "Expect reset at beginning of channel value update"
         msg_index += 1
 
 
         offset = 0
-        msg = self.mock_socket.sendall.call_args_list[msg_index][P_ARGS][0]
+        msg = self.mock_connection.sendall.call_args_list[msg_index][P_ARGS][0]
         command_type, channel_count = struct.unpack_from('!qq', msg)
         offset += struct.calcsize('!qq')
-        self.assertEqual(command_type, houdini.commands.VALUE)
-        self.assertEqual(channel_count, 6)
+        assert command_type == houdini.commands.VALUE, "Expected command type to be Value"
+        assert channel_count == 6
 
         for data in motion_data:
             value = struct.unpack_from('!d', msg, offset)[0]
             offset += struct.calcsize('!d')
-            self.assertEqual(value, data)
+            assert value == data
         msg_index += 1
 
         # Simulate Session Shutdown
         self.delegate.session_did_shutdown()
-        msg = self.mock_socket.sendall.call_args_list[msg_index][P_ARGS][0]
-        self.assertTrue(is_reset(msg))
+        msg = self.mock_connection.sendall.call_args_list[msg_index][P_ARGS][0]
+        assert is_reset(msg)
+
         msg_index += 1
-        msg = self.mock_socket.sendall.call_args_list[msg_index][P_ARGS][0]
-        self.assertEqual(struct.unpack('!q', msg)[0], houdini.commands.DISCONNECT)
+        msg = self.mock_connection.sendall.call_args_list[msg_index][P_ARGS][0]
+        assert struct.unpack('!q', msg)[0] == houdini.commands.DISCONNECT
 
 
 def is_reset(msg):

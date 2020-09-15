@@ -8,6 +8,7 @@ mock = "*"
 watchdog = "*"
 pyyaml = "*"
 argh = "*"
+pytest = "*"
 
 [packages]
 netifaces = "*"

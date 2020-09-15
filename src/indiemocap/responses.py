@@ -11,7 +11,7 @@ from indiemocap import messages
 from indiemocap import message_types
 
 
-class ErrorMessage(messaging.MessageEncoder):
+class ErrorResponse(messaging.MessageEncoder):
 
     mtype = message_types.Error
 

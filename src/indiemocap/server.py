@@ -73,8 +73,10 @@ class MocapServer(imc.connection_delegates.ConnectionDelegate):
             response = self.session_controller.make_heartbeat()
 
         elif message.mtype == indiemocap.message_types.MotionData:
-            response = self.session_controller.process_motion_data(message)
-
+            pass
+            # response = self.session_controller.process_motion_data(message)
+        else:
+            print(message)
         return response
 
 

@@ -21,7 +21,6 @@ class HoudiniSessionControllerDelegate:
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         try:
-            print("Binding to connection")
             self.socket.bind(('localhost', self.pipe_port))
             self.socket.listen(1)
             print("Waiting for connection")
@@ -48,11 +47,11 @@ class HoudiniSessionControllerDelegate:
         return "Houdini Server"
 
     def mode_did_change(self, mode):
-        if mode == indiemocap.session.modes.Stop:
+        if mode == indiemocap.session.Session.modes.Stop:
             pass
-        elif mode == indiemocap.session.modes.Live:
+        elif mode == indiemocap.session.Session.modes.Live:
             pass
-        elif mode == indiemocap.session.modes.Record:
+        elif mode == indiemocap.session.Session.modes.Record:
             pass
         else:
             # TODO send error

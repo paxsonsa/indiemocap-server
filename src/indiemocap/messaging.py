@@ -32,8 +32,6 @@ class MessageEncoder:
     def encode(self):
 
         body = self.encode_body()
-        print(len(body))
-
         part_id = 1
         part_count = 1
         length = len(body)

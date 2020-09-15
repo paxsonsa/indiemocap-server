@@ -65,6 +65,4 @@ class UDPConnection:
 
     def send_message(self, message):
         encoded_message = self.transport.handle_send(message, self.metadata)
-        print("Encoded", encoded_message)
-        print(self.metadata.get("host_port"))
-        print("Sent", self.sock.sendto(encoded_message, self.metadata.get("host_port")))
+        self.sock.sendto(encoded_message, self.metadata.get("host_port"))

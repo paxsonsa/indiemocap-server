@@ -28,7 +28,6 @@ class ProtocolTransport:
 
         header = messaging.safe_unpack_header(data)
         message_processor = self.registered_handlers.get(header['mtype'])
-        print(message_processor)
 
         if message_processor:
             return message_processor.process(self, metadata, data[messaging.MESAGE_HEADER_SIZE:]), None
@@ -42,4 +41,5 @@ class ProtocolTransport:
 
     def register_handlers(self, handlers):
         for handler in handlers:
+            print(handler.mtype)
             self.registered_handlers[handler.mtype] = handler
