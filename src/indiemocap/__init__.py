@@ -13,6 +13,7 @@ from indiemocap import (
     transport,
     session_controller,
     session,
+    server,
 )
 
 default_handlers = [

@@ -19,7 +19,6 @@ import indiemocap.message_types
 class MocapServer(imc.connection_delegates.ConnectionDelegate):
 
     def __init__(self, session_controller):
-
         self.session_controller = session_controller
         self.configure_transport()
         self.configure_server()
@@ -122,7 +121,24 @@ def run_dev_server():
         server.shutdown()
 
 
+def start_server_with(session_controller):
+    indiemocap.log.get_logger()
+    server = MocapServer(session_controller)
+    try:
+        close_event = server.start_threaded_connection()
+        while True:
+            pass
+
+    except KeyboardInterrupt:
+        pass
+
+    finally:
+        print("Closing...")
+        close_event.set()
+        server.shutdown()
+
+
+
 
 if __name__ == "__main__":
     run_dev_server()
-

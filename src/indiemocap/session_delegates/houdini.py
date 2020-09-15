@@ -12,23 +12,28 @@ import indiemocap.session
 
 class HoudiniSessionControllerDelegate:
 
-    def __init__(self, pipe_port=5555):
+    def __init__(self, pipe_port=5000):
         self.socket = socket.socket()
+        self.conn = None
         self.pipe_port = pipe_port
 
     def session_did_initialize(self, client_info):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
         try:
-            self.socket.connect(('127.0.0.1', self.pipe_port))
+            print("Binding to connection")
+            self.socket.bind(('localhost', self.pipe_port))
+            self.socket.listen(1)
+            print("Waiting for connection")
+            self.conn, _ = self.socket.accept()
         except socket.error as e:
             print('Unable to bind socket:', e)
             self.socket.close()
-            # TODO Send Error to Controller
             return
 
         # When the connection is made, setup the channel names
         send_channel_names(
-            self.socket,
+            self.conn,
             [
                 "yaw",
                 "pitch",
@@ -38,6 +43,9 @@ class HoudiniSessionControllerDelegate:
                 "accZ",
             ]
         )
+
+    def get_session_name(self):
+        return "Houdini Server"
 
     def mode_did_change(self, mode):
         if mode == indiemocap.session.modes.Stop:
@@ -51,16 +59,16 @@ class HoudiniSessionControllerDelegate:
             pass
 
     def did_recieve_motion_data(self, motion_data):
+        print("Sending: {0}".format(motion_data))
         send_value(
-            self.socket,
+            self.conn,
             [motion_data.yaw, motion_data.pitch, motion_data.roll,
              motion_data.accX, motion_data.accY, motion_data.accZ]
         )
 
-
-
     def session_did_shutdown(self):
-        send_disconnect(self.socket)
+        send_disconnect(self.conn)
+        self.conn.close()
         self.socket.close()
         return
 

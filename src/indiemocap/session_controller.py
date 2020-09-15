@@ -21,8 +21,9 @@ class SessionController:
         self.state["client_info"] = client_info
 
         if self.delegate:
-            name = self.delegate.getSessionName() or name
+            name = self.delegate.get_session_name() or name
             # TODO Error
+            print("Starting Init")
             self.delegate.session_did_initialize(client_info)
 
         return responses.SessionStartedResponse(
@@ -34,13 +35,14 @@ class SessionController:
         self.state["mode"] = mode
         if self.delegate:
             # TODO Handle Errors
-            self.delegate.didUpdateMode(mode)
+            self.delegate.mode_did_change(mode)
 
     def process_motion_data(self, motion_data):
         # TODO check mode
+        print(motion_data)
         if self.delegate:
             # TODO Handle Error/Response
-            self.delegate.didRecieveMotionData(motion_data)
+            self.delegate.did_recieve_motion_data(motion_data)
         return None
 
     def make_heartbeat(self):
