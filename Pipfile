@@ -9,6 +9,8 @@ watchdog = "*"
 pyyaml = "*"
 argh = "*"
 pytest = "*"
+pytest-cov = "*"
+flake8 = "*"
 
 [packages]
 netifaces = "*"

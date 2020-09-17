@@ -1,3 +1,3 @@
 #! /bin/bash
 export PYTHONPATH="src/"
-pytest tests/
+pytest --cov=indiemocap tests/

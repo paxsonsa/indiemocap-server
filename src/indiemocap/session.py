@@ -23,6 +23,9 @@ class Session:
         Record = 2
 
     def __init__(self):
+        self.reset()
+
+    def reset(self):
         self.client_info = None
         self.mode = self.modes.Stopped
         self.samples = 60

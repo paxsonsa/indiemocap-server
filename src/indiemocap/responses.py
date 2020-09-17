@@ -26,7 +26,7 @@ class ErrorResponse(messaging.MessageEncoder):
 
 
 class SessionStartedResponse(messaging.Message, messaging.MessageEncoder):
-
+    # TODO Add Validation
     mtype = message_types.SessionStarted
     byte_structure = '32s?'
     attributes = [

@@ -10,12 +10,16 @@ import struct
 
 import indiemocap.session
 
+
 class HoudiniSessionControllerDelegate:
 
     def __init__(self, pipe_port=5000):
         self.socket = socket.socket()
         self.conn = None
         self.pipe_port = pipe_port
+
+    def get_session_name(self):
+        return "Houdini Server"
 
     def session_did_initialize(self, client_info):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -43,8 +47,14 @@ class HoudiniSessionControllerDelegate:
             ]
         )
 
-    def get_session_name(self):
-        return "Houdini Server"
+    def session_did_shutdown(self):
+        send_disconnect(self.conn)
+        self.conn.close()
+        self.socket.close()
+        return
+
+    def session_did_reset(self):
+        pass
 
     def mode_did_change(self, mode):
         if mode == indiemocap.session.Session.modes.Stop:
@@ -65,14 +75,10 @@ class HoudiniSessionControllerDelegate:
              motion_data.accX, motion_data.accY, motion_data.accZ]
         )
 
-    def session_did_shutdown(self):
-        send_disconnect(self.conn)
-        self.conn.close()
-        self.socket.close()
-        return
 
 ESC = chr(170)
 NULL = chr(0)
+
 
 class commands:
     VALUE = 1
@@ -85,16 +91,25 @@ class commands:
 
 def send_disconnect(conn):
     send_reset(conn)
-    conn.sendall(struct.pack('!q', commands.DISCONNECT));
+    conn.sendall(struct.pack('!q', commands.DISCONNECT))
+
 
 def send_reset(conn):
-    conn.sendall(struct.pack('!8c', ESC, NULL, ESC, NULL, ESC, NULL, ESC, NULL))
+    conn.sendall(
+        struct.pack('!8c',
+                    ESC, NULL,
+                    ESC, NULL,
+                    ESC, NULL,
+                    ESC, NULL)
+    )
+
 
 def send_value(conn, values):
     send_reset(conn)
     msg = struct.pack('!qq', commands.VALUE, len(values))
     msg += struct.pack('!' + 'd' * len(values), *values)
     conn.sendall(msg)
+
 
 def send_channel_names(conn, names):
     send_reset(conn)
