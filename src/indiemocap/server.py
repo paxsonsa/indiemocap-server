@@ -41,7 +41,7 @@ class MocapServer(imc.connection_delegates.ConnectionDelegate):
                         port=port,
                         properties=desc
         )
-        self._zeroconf = zeroconf = Zeroconf()
+        self._zeroconf = Zeroconf()
 
         print("Service available on port {0}".format(port))
         print("Registration of a service, press Ctrl-C to exit...")
@@ -97,8 +97,8 @@ def get_socket_addr():
         socket bytes
     """
     valid_addrs = [netifaces.ifaddresses(i)[netifaces.AF_INET][0]['addr']
-        for i in netifaces.interfaces()
-            if netifaces.AF_INET in netifaces.ifaddresses(i)]
+                   for i in netifaces.interfaces()
+                   if netifaces.AF_INET in netifaces.ifaddresses(i)]
 
     for addr in valid_addrs:
         if not addr.startswith('127.0'):

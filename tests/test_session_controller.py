@@ -13,6 +13,7 @@ from indiemocap.session import Session
 from indiemocap.session_controller import SessionController
 from indiemocap.message_types import SessionStarted, Error
 from indiemocap.errorno import make_session_error, ERROR_SESSION_INIT_FAILED
+from indiemocap.responses import ErrorResponse
 
 DEFAULT_SERVER_NAME = "ServerName"
 FAKE_CLIENT = {"hello": "value"}
@@ -41,6 +42,15 @@ class TestSessionController(unittest.TestCase):
         assert self.delegate_mock.session_did_reset.called
         assert self.delegate_mock.get_session_name.called
         assert self.delegate_mock.session_did_initialize.called
+
+    def test_unknown_error_catching(self):
+        err = ValueError("Some strange value error")
+        self.delegate_mock.session_did_initialize.side_effect = err
+
+        response = self.test_controller.initialize_session(FAKE_CLIENT)
+        assert isinstance(response, ErrorResponse)
+        assert response.error_code == ERROR_SESSION_INIT_FAILED
+        assert response.message == "Unknown errored occured on server."
 
     def test_response_is_success(self):
         response = self.test_controller.initialize_session(FAKE_CLIENT)

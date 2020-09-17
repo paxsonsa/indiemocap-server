@@ -47,14 +47,19 @@ class UDPConnection:
                     raise error
             else:
                 self.metadata.update_metadata(host_port=host_port)
-                message, error_msg = self.transport.handled_recieved(data, self.metadata)
+                message, error_msg = self.transport.handled_recieved(
+                    data,
+                    self.metadata
+                )
 
-                # Message failed to be decoded, send error from transport layer.
+                # Message failed to be decoded, send error
+                # from transport layer.
                 if error_msg:
                     self.send_message(error_msg)
                     continue
 
-                # Pass message to delegate to be processed and send the response.
+                # Pass message to delegate to be processed
+                # and send the response.
                 if self.delegate and message:
                     response = self.delegate.did_recieve_message(message)
                     if response:
