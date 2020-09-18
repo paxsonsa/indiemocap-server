@@ -9,7 +9,6 @@ Author: Andrew Paxson
 from indiemocap import responses
 from indiemocap import errorno
 from indiemocap.errorno import catch_error_responses
-from indiemocap.session import Session
 
 
 class SessionController:
