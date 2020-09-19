@@ -28,6 +28,9 @@ class Message:
 class MessageEncoder:
 
     mtype = None
+    byte_struct = None
+    attributes = []
+    encoding_hooks = {}
 
     def encode(self):
 
@@ -42,7 +45,18 @@ class MessageEncoder:
         return struct.pack('IIII', self.mtype, length, part_count, part_id)
 
     def encode_body(self):
-        raise NotImplementedError
+        if not self.byte_struct:
+            return b''
+
+        values = []
+        for attr in self.attributes:
+            value = getattr(self, attr)
+            if self.encoding_hooks.get(attr):
+                value = self.encoding_hooks.get(attr)(value)
+            values.append(
+                value
+            )
+        return safe_pack_message(self.byte_structure, *values)
 
 
 class MessageHandler:
@@ -53,7 +67,6 @@ class MessageHandler:
     name_byte_mapping = []
     metadata_keys = []
     decode_hooks = {}
-
 
     def process(self, transport, metadata, data):
         unpacked_data = safe_unpack_message(self.byte_structure, data)

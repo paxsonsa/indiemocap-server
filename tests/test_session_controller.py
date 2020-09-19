@@ -11,7 +11,7 @@ import unittest
 
 from indiemocap.session import Session
 from indiemocap.session_controller import SessionController
-from indiemocap.message_types import SessionStarted, Error
+from indiemocap.message_types import SessionStarted, SessionEnded, Error
 from indiemocap.errorno import make_session_error, ERROR_SESSION_INIT_FAILED
 from indiemocap.responses import ErrorResponse
 
@@ -76,3 +76,17 @@ class TestSessionController(unittest.TestCase):
         self.test_controller.reset_session()
         assert self.session.client_info is None
         assert self.session.mode == Session.modes.Stopped
+
+    def test_controller_end_session(self):
+        """ Test Controller end_session() closes session properly."""
+        self.test_controller.initialize_session(FAKE_CLIENT)
+        assert self.session.client_info == FAKE_CLIENT
+
+        response = self.test_controller.end_session()
+        assert self.session.client_info is None
+        assert response.mtype == SessionEnded
+
+    def test_end_session_errrors_when_not_initialized(self):
+        """ Test controller end_session() responds with error when the session is not initialized """
+        response = self.test_controller.end_session()
+        assert response.mtype == Error

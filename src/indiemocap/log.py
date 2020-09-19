@@ -10,6 +10,7 @@ import logging
 
 LOGGER = None
 
+
 def get_logger():
     logging.basicConfig(level=logging.DEBUG)
 

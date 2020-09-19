@@ -7,6 +7,10 @@ Error Numbers
 Author: Andrew Paxson
 """
 from indiemocap import responses
+from indiemocap.log import get_logger
+
+
+LOG = get_logger()
 
 
 ERROR_BAD_MTYPE = 10
@@ -15,9 +19,10 @@ ERROR_BAD_HANDSHAKE = 11
 ERROR_HEARTBEAT_FAILED = 20
 
 ERROR_SESSION_INIT_FAILED = 30
-ERROR_SESSION_RESET_FAILED = 31
-ERROR_SESSION_MODE_CHANGE_FAILED = 32
-ERROR_SESSION_MOTION_FAILED = 32
+ERROR_SESSION_END_FAILED = 31
+ERROR_SESSION_RESET_FAILED = 32
+ERROR_SESSION_MODE_CHANGE_FAILED = 33
+ERROR_SESSION_MOTION_FAILED = 34
 
 
 class SessionErrorException(Exception):
@@ -39,12 +44,13 @@ def catch_error_responses(error_code, message="Unknown errored occured on server
             try:
                 response = func(*args, **kwargs)
             except SessionErrorException as err:
+                LOG.error(err)
                 response = responses.ErrorResponse(
                     err.session_errorno,
                     str(err)
                 )
             except Exception as err:
-                # TODO Error Logging
+                LOG.error(err)
                 response = responses.ErrorResponse(
                     error_code,
                     message

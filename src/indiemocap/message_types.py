@@ -11,7 +11,7 @@ Error = 0
 SessionHeartbeat = 10
 SessionInit = 11
 SessionStarted = 12
-SessionSessionEnded = 13
+SessionEnded = 13
 SessionModeChanged = 14
 
 MotionData = 20

@@ -42,34 +42,10 @@ class SessionStartedResponse(messaging.Message, messaging.MessageEncoder):
         self.server_name = server_name
         self.is_video_supported = is_video_supported
 
-    def encode_body(self):
-        values = []
-        for attr in self.attributes:
-            value = getattr(self, attr)
-            if self.encoding_hooks.get(attr):
-                value = self.encoding_hooks.get(attr)(value)
-            values.append(
-                value
-            )
-        return messaging.safe_pack_message(self.byte_structure, *values)
-
 
 class SessionHeartbeatResponse(messaging.Message, messaging.MessageEncoder):
-
     mtype = message_types.SessionHeartbeat
-    byte_struct = None
 
-    def encode_body(self):
 
-        if not self.byte_struct:
-            return b''
-
-        values = []
-        for attr in self.attributes:
-            value = getattr(self, attr)
-            if self.encoding_hooks.get(attr):
-                value = self.encoding_hooks.get(attr)(value)
-            values.append(
-                value
-            )
-        return messaging.safe_pack_message(self.byte_structure, *values)
+class SessionEndedResponse(messaging.Message, messaging.MessageEncoder):
+    mtype = message_types.SessionEnded

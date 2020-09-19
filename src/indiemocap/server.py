@@ -23,7 +23,6 @@ class MocapServer(imc.connection_delegates.ConnectionDelegate):
         self.configure_transport()
         self.configure_server()
 
-
     def configure_transport(self):
         self.transport = imc.transport.ProtocolTransport()
         self.transport.register_handlers(imc.default_handlers)

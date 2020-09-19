@@ -9,6 +9,10 @@ Author: Andrew Paxson
 from indiemocap import responses
 from indiemocap import errorno
 from indiemocap.errorno import catch_error_responses
+from indiemocap.log import get_logger
+
+
+LOG = get_logger()
 
 
 class SessionController:
@@ -49,7 +53,6 @@ class SessionController:
             is_video_supported=self.session.supports_video
         )
 
-    @catch_error_responses(errorno.ERROR_SESSION_RESET_FAILED)
     def reset_session(self):
         """ Reset the session """
         self.session.reset()
@@ -60,7 +63,6 @@ class SessionController:
     def update_mode(self, mode):
         self.session.mode = mode
         if self.delegate:
-            # TODO Handle Errors
             self.delegate.mode_did_change(mode)
 
     @catch_error_responses(errorno.ERROR_SESSION_MOTION_FAILED)
@@ -78,3 +80,13 @@ class SessionController:
     @catch_error_responses(errorno.ERROR_HEARTBEAT_FAILED)
     def make_heartbeat(self):
         return responses.SessionHeartbeatResponse()
+
+    @catch_error_responses(errorno.ERROR_HEARTBEAT_FAILED)
+    def end_session(self):
+        if not self.session.client_info:
+            return responses.ErrorResponse(
+                errorno.ERROR_SESSION_END_FAILED,
+                "Cannot end session, the is not session running"
+            )
+        self.reset_session()
+        return responses.SessionEndedResponse()
