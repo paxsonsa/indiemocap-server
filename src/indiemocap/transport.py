@@ -85,5 +85,4 @@ class ProtocolTransport:
                 to register
         """
         for handler in handlers:
-            print(handler.mtype)
             self.registered_handlers[handler.mtype] = handler
