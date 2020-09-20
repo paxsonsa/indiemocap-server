@@ -10,8 +10,10 @@ import struct
 
 import indiemocap.session
 
+from . import BaseSessionDelegate
 
-class HoudiniSessionControllerDelegate:
+
+class HoudiniSessionControllerDelegate(BaseSessionDelegate):
 
     def __init__(self, pipe_port=5000):
         self.socket = socket.socket()

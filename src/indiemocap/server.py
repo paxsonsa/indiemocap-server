@@ -12,6 +12,7 @@ import threading
 from zeroconf import ServiceInfo, Zeroconf
 
 import indiemocap as imc
+import indiemocap.session_delegates.echo as echo_delegate
 import indiemocap.log
 import indiemocap.message_types
 
@@ -106,26 +107,20 @@ def get_socket_addr():
 
 def run_dev_server():
     indiemocap.log.get_logger()
-    session_controller = imc.session_controller.SessionController()
-    server = MocapServer(session_controller)
-    try:
-        close_event = server.start_threaded_connection()
-        while True:
-            pass
-
-    except KeyboardInterrupt:
-        pass
-
-    finally:
-        print("Closing...")
-        close_event.set()
-        server.shutdown()
+    session = imc.session.Session()
+    delegate = echo_delegate.EchoSessionDelegate()
+    session_controller = imc.session_controller.SessionController(
+        session,
+        delegate
+    )
+    start_server_with(session_controller)
 
 
 def start_server_with(session_controller):
-    indiemocap.log.get_logger()
+    logger = indiemocap.log.get_logger()
     server = MocapServer(session_controller)
     try:
+        logger.info("Launching Server...")
         close_event = server.start_threaded_connection()
         while True:
             pass
@@ -134,7 +129,7 @@ def start_server_with(session_controller):
         pass
 
     finally:
-        print("Closing...")
+        logger.info("Closing...")
         close_event.set()
         server.shutdown()
 

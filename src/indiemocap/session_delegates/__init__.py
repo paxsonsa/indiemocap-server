@@ -6,4 +6,4 @@ Session Controller Delegates
 
 Author: Andrew Paxson
 """
-from . import houdini
+from .base import BaseSessionDelegate
