@@ -23,13 +23,13 @@ class SessionController:
 
     @catch_error_responses(errorno.ERROR_SESSION_INIT_FAILED)
     def initialize_session(self, client_info):
-        """ Initialize the session with the given client_info
+        """ Initialize the session connection with the given client_info
 
         Args:
             client_info (dict): A dictionary of client information
 
         Returns:
-            MessageEncoder
+            MessageEncoder or None
         """
         response = self.reset_session()
         if response:
@@ -61,12 +61,29 @@ class SessionController:
 
     @catch_error_responses(errorno.ERROR_SESSION_MODE_CHANGE_FAILED)
     def update_mode(self, mode):
+        """ Update the session's current mode
+
+        Args:
+            mode (int): The new mode to update to (from Session.modes)
+
+        Returns:
+            MessageEncoder or None
+        """
         self.session.mode = mode
         if self.delegate:
             self.delegate.mode_did_change(mode)
 
     @catch_error_responses(errorno.ERROR_SESSION_MOTION_FAILED)
     def process_motion_data(self, motion_data):
+        """ Process Incoming Motion Data
+
+        Args:
+            motion_data (MotionDataMessage): The motion data to process
+
+        Returns:
+            MessageEncoder or None
+
+        """
         if self.session.mode == self.session.modes.Stopped:
             return responses.ErrorResponse(
                 errorno.ERROR_SESSION_MOTION_FAILED,
@@ -79,10 +96,18 @@ class SessionController:
 
     @catch_error_responses(errorno.ERROR_HEARTBEAT_FAILED)
     def make_heartbeat(self):
+        """ Create a new heartbeat response
+        Returns:
+            MessageEncoder
+        """
         return responses.SessionHeartbeatResponse()
 
-    @catch_error_responses(errorno.ERROR_HEARTBEAT_FAILED)
+    @catch_error_responses(errorno.ERROR_SESSION_END_FAILED)
     def end_session(self):
+        """ End the current sesssion connection
+        Returns:
+            MessageEncoder or None
+        """
         if not self.session.client_info:
             return responses.ErrorResponse(
                 errorno.ERROR_SESSION_END_FAILED,
