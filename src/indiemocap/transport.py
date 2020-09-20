@@ -14,13 +14,31 @@ from indiemocap.messages import errors
 
 LOG = indiemocap.log.get_logger()
 
-class ProtocolTransport:
 
+class ProtocolTransport:
+    """ Class for transporting messages to and from a connection.
+
+    By registering a list of MessageHandlers transport class can
+    be used to process (decode/encode) messages (MessageEncoders).
+
+    Attributes:
+        registered_handlers (dict[int: MessageHandler]): A dictionary of
+            messages types and functions to use for handling incoming messages
+    """
     def __init__(self):
-        self.connection = None
+        """ Create a new transporter """
         self.registered_handlers = {}
 
     def handled_recieved(self, data, metadata):
+        """ Handle the incoming data and return the decoded message
+
+        Args:
+            data (bytes): A stream of bytes to decode
+            metadata (dict): Extra metadata about the message
+
+        Returns:
+            Message or None, Error Message or None
+        """
         # Returns message, error
         # Incomplete message
         if len(data) < 4:
@@ -30,16 +48,42 @@ class ProtocolTransport:
         message_processor = self.registered_handlers.get(header['mtype'])
 
         if message_processor:
-            return message_processor.process(self, metadata, data[messaging.MESAGE_HEADER_SIZE:]), None
+            return message_processor.process(
+                self,
+                metadata,
+                data[messaging.MESAGE_HEADER_SIZE:]
+            ), None
         else:
-            LOG.error("Error Occurred: no message process for mtype '{0}'".format(header["mtype"]))
-            error_msg = errors.ErrorMessage(errorno.ERROR_BAD_MTYPE, "Cannot process message type.")
+            LOG.error(
+                "Error Occurred: no message process for mtype '{0}'".format(
+                    header["mtype"])
+            )
+            error_msg = errors.ErrorMessage(
+                errorno.ERROR_BAD_MTYPE,
+                "Cannot process message type."
+            )
             return None, error_msg
 
     def handle_send(self, message, metadata):
+        """ Encode the message and return the bytes
+
+        Args:
+            message (MessageEncoder): The message to encode which should be a
+                subclass of MessageEncoder
+            metadata (dict): Extra metadata to use for processing the message.
+
+        Returns:
+            bytes
+        """
         return message.encode()
 
     def register_handlers(self, handlers):
+        """ Register a list of handler classes
+
+        Args:
+            handlers (list[MessageHandler]): A list of Messagehandlers
+                to register
+        """
         for handler in handlers:
             print(handler.mtype)
             self.registered_handlers[handler.mtype] = handler
